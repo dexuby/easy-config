@@ -119,7 +119,7 @@ public class ConfigurationResolver {
 
                         if (this.registeredSerializers.containsKey(fieldType)) {
                             final ConfigurationSerializable<?> serializer = this.registeredSerializers.get(fieldType);
-                            setConfigurationFieldValue(field, type, serializer.deserialize(config.getConfig(path)));
+                            setConfigurationFieldValue(field, type, serializer.deserialize(config.getValue(path)));
                         } else {
                             setConfigurationFieldValue(field, type, config.getValue(path).unwrapped());
                         }
@@ -138,7 +138,7 @@ public class ConfigurationResolver {
                         if (requiresFieldWriter) continue;
                         if (this.registeredSerializers.containsKey(fieldType)) {
                             final ConfigurationSerializable serializer = this.registeredSerializers.get(fieldType);
-                            config = config.withValue(path, ConfigValueFactory.fromMap(serializer.serialize(fieldValue).root().unwrapped()).withOrigin(this.createOrigin(description)));
+                            config = config.withValue(path, serializer.serialize(fieldValue).withOrigin(this.createOrigin(description)));
                         } else {
                             config = config.withValue(path, ConfigValueFactory.fromAnyRef(fieldValue).withOrigin(this.createOrigin(description)));
                         }

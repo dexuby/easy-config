@@ -36,7 +36,7 @@ public final class ArrayGenericTypeHandler extends GenericTypeHandler {
             final ConfigValue configValue = configList.get(i);
             if (this.registeredSerializers.containsKey(componentType)) {
                 final ConfigurationSerializable<?> serializer = this.registeredSerializers.get(componentType);
-                Array.set(array, i, componentType.cast(serializer.deserialize(((ConfigObject) configValue).toConfig())));
+                Array.set(array, i, componentType.cast(serializer.deserialize(configValue)));
             } else {
                 Array.set(array, i, componentType.cast(configValue.unwrapped()));
             }
@@ -56,7 +56,7 @@ public final class ArrayGenericTypeHandler extends GenericTypeHandler {
         for (final Object obj : fieldValue) {
             if (this.registeredSerializers.containsKey(componentType)) {
                 final ConfigurationSerializable serializer = this.registeredSerializers.get(componentType);
-                configObjects.add(ConfigValueFactory.fromMap(serializer.serialize(obj).root().unwrapped()));
+                configObjects.add(serializer.serialize(obj));
             } else {
                 configObjects.add(ConfigValueFactory.fromAnyRef(obj));
             }

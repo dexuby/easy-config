@@ -60,7 +60,7 @@ public final class CollectionGenericTypeHandler extends GenericTypeHandler {
         for (final ConfigValue configValue : configList) {
             if (this.registeredSerializers.containsKey(actualType)) {
                 final ConfigurationSerializable<?> serializer = this.registeredSerializers.get(actualType);
-                collection.add(actualType.cast(serializer.deserialize(((ConfigObject) configValue).toConfig())));
+                collection.add(actualType.cast(serializer.deserialize(configValue)));
             } else {
                 collection.add(actualType.cast(configValue.unwrapped()));
             }
@@ -87,7 +87,7 @@ public final class CollectionGenericTypeHandler extends GenericTypeHandler {
         for (final Object obj : fieldValue) {
             if (this.registeredSerializers.containsKey(actualType)) {
                 final ConfigurationSerializable serializer = this.registeredSerializers.get(actualType);
-                configObjects.add(ConfigValueFactory.fromMap(serializer.serialize(obj).root().unwrapped()));
+                configObjects.add(serializer.serialize(obj));
             } else {
                 configObjects.add(ConfigValueFactory.fromAnyRef(obj));
             }

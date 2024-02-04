@@ -65,7 +65,7 @@ public final class MapGenericTypeHandler extends GenericTypeHandler {
             Object key;
             if (this.registeredSerializers.containsKey(keyType)) {
                 final ConfigurationSerializable<?> serializer = this.registeredSerializers.get(keyType);
-                key = keyType.cast(serializer.deserialize(((ConfigObject) keyConfigValue).toConfig()));
+                key = keyType.cast(serializer.deserialize(keyConfigValue));
             } else {
                 key = keyType.cast(keyConfigValue.unwrapped());
             }
@@ -73,7 +73,7 @@ public final class MapGenericTypeHandler extends GenericTypeHandler {
             Object value;
             if (this.registeredSerializers.containsKey(valueType)) {
                 final ConfigurationSerializable<?> serializer = this.registeredSerializers.get(valueType);
-                value = valueType.cast(serializer.deserialize(((ConfigObject) valueConfigValue).toConfig()));
+                value = valueType.cast(serializer.deserialize(valueConfigValue));
             } else {
                 value = valueType.cast(valueConfigValue.unwrapped());
             }
@@ -104,13 +104,13 @@ public final class MapGenericTypeHandler extends GenericTypeHandler {
             Config config = ConfigFactory.empty();
             if (this.registeredSerializers.containsKey(keyType)) {
                 final ConfigurationSerializable serializer = this.registeredSerializers.get(keyType);
-                config = config.withValue("key", ConfigValueFactory.fromMap(serializer.serialize(entry.getKey()).root().unwrapped()));
+                config = config.withValue("key", serializer.serialize(entry.getKey()));
             } else {
                 config = config.withValue("key", ConfigValueFactory.fromAnyRef(entry.getKey()));
             }
             if (this.registeredSerializers.containsKey(valueType)) {
                 final ConfigurationSerializable serializer = this.registeredSerializers.get(valueType);
-                config = config.withValue("value", ConfigValueFactory.fromMap(serializer.serialize(entry.getValue()).root().unwrapped()));
+                config = config.withValue("value", serializer.serialize(entry.getValue()));
             } else {
                 config = config.withValue("value", ConfigValueFactory.fromAnyRef(entry.getValue()));
             }

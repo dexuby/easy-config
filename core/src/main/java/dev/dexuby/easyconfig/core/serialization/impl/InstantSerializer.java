@@ -1,8 +1,6 @@
 package dev.dexuby.easyconfig.core.serialization.impl;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
+import com.typesafe.config.*;
 import dev.dexuby.easycommon.external.jetbrains.annotations.NotNull;
 import dev.dexuby.easycommon.external.jetbrains.annotations.Nullable;
 import dev.dexuby.easyconfig.core.serialization.ConfigurationSerializable;
@@ -27,20 +25,17 @@ public final class InstantSerializer implements ConfigurationSerializable<Instan
 
     @Nullable
     @Override
-    public Config serialize(@NotNull final Instant input) {
+    public ConfigValue serialize(@NotNull final Instant input) {
 
-        Config config = ConfigFactory.empty();
-        config = config.withValue("timestamp", ConfigValueFactory.fromAnyRef(input.toEpochMilli()));
-
-        return config;
+        return ConfigValueFactory.fromAnyRef(input.toEpochMilli());
 
     }
 
     @Nullable
     @Override
-    public Instant deserialize(@NotNull final Config config) {
+    public Instant deserialize(@NotNull final ConfigValue configValue) {
 
-        return config.hasPath("timestamp") ? Instant.ofEpochMilli(config.getLong("timestamp")) : null;
+        return Instant.ofEpochMilli((long) configValue.unwrapped());
 
     }
 
