@@ -43,7 +43,7 @@ final EasyReflect easyReflect = EasyReflect.builder()
 final ConfigurationResolver configurationResolver = new ConfigurationResolver(easyReflect);
 configurationResolver.resolveAndLoad();
 ```
-All configurations will get auto resolved and loaded in the target package and all subpackages that are not ignored. In order to reload all configuration simply re-use the same `ConfigurationResolver` instance and call `#resolveAndLoad` again.
+All configurations will get auto resolved and loaded in the target package and all subpackages that are not ignored. In order to reload all configurations simply re-use the same `ConfigurationResolver` instance and call `#resolveAndLoad` again.
 
 ## How to implement a (de)serializer:
 ```java
