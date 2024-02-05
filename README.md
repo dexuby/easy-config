@@ -83,6 +83,7 @@ public final class InstantSerializer implements ConfigurationSerializable<Instan
 
 }
 ```
+If you want to utilize auto serializer resolving you'll have to add the `@ConfigurationSerializer` annotation to your serializer class. This class then also needs to provide either a singleton getter method or a public zero-args constructor.
 
 ## How to register a (de)serializer:
 You can either provide a (de)serializer map during the construction of your `ConfigurationResolver` instance, use the `#registerSerializer` method or use the auto serializer resolver:
