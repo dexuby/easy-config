@@ -16,12 +16,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -65,6 +64,47 @@ public class ConfigurationResolver {
             this.registeredGenericTypeHandlers.putAll(defaultGenericTypeHandlers);
         if (defaultSerializers != null)
             this.registeredSerializers.putAll(defaultSerializers);
+
+    }
+
+    /**
+     * Automatically resolves and adds annotated serializers.
+     */
+
+    public void resolveSerializers() {
+
+        final Map<Class<?>, ConfigurationSerializer> classes = this.easyReflect.findAnnotatedClasses(ConfigurationSerializer.class);
+        for (final Map.Entry<Class<?>, ConfigurationSerializer> classEntry : classes.entrySet()) {
+            final Class<?> type = classEntry.getKey();
+            if (!(ConfigurationSerializable.class.isAssignableFrom(type)))
+                continue;
+            try {
+                final Constructor<?> constructor = type.getConstructor();
+                try {
+                    // Create new instance and register.
+                    final ConfigurationSerializable<?> instance = (ConfigurationSerializable<?>) constructor.newInstance();
+                    this.registerSerializer(type, instance);
+                } catch (final InvocationTargetException | InstantiationException | IllegalAccessException ex) {
+                    Constants.LOGGER.error("Failed to create new instance of serializer class " + type.getName(), ex);
+                }
+            } catch (final NoSuchMethodException ex) {
+                // No public zero-args constructor, check if it's a singleton.
+                for (final Method method : type.getMethods()) {
+                    if (!Modifier.isStatic(method.getModifiers()))
+                        continue;
+                    if (!method.getReturnType().equals(type))
+                        continue;
+                    try {
+                        // Try to obtain the singleton instance from the static getter.
+                        final ConfigurationSerializable<?> instance = (ConfigurationSerializable<?>) method.invoke(null);
+                        this.registerSerializer(type, instance);
+                        break;
+                    } catch (final IllegalAccessException | InvocationTargetException innerException) {
+                        Constants.LOGGER.error("Failed to obtain singleton instance of serializer class: " + type.getName(), innerException);
+                    }
+                }
+            }
+        }
 
     }
 
@@ -286,6 +326,18 @@ public class ConfigurationResolver {
     }
 
     /**
+     * Returns a copy of the internal registered generic type handler map.
+     *
+     * @return The internal map copy.
+     */
+
+    public Map<Predicate<Class<?>>, GenericTypeHandlerFactory> getRegisteredGenericTypeHandlers() {
+
+        return new HashMap<>(registeredGenericTypeHandlers);
+
+    }
+
+    /**
      * Registers a new serializable type.
      *
      * @param type       The type.
@@ -294,7 +346,34 @@ public class ConfigurationResolver {
 
     public void registerSerializer(@NotNull final Class<?> type, @NotNull final ConfigurationSerializable<?> serializer) {
 
-        this.registeredSerializers.put(type, serializer);
+        this.registerSerializer(type, serializer, false);
+
+    }
+
+    /**
+     * Registers a new serializable type.
+     *
+     * @param type       The type.
+     * @param serializer The serializer.
+     * @param override   Should override.
+     */
+
+    public void registerSerializer(@NotNull final Class<?> type, @NotNull final ConfigurationSerializable<?> serializer, final boolean override) {
+
+        if (!this.registeredSerializers.containsKey(type) || override)
+            this.registeredSerializers.put(type, serializer);
+
+    }
+
+    /**
+     * Returns a copy of the internal registered serializer map.
+     *
+     * @return The internal map copy.
+     */
+
+    public Map<Class<?>, ConfigurationSerializable<?>> getRegisteredSerializers() {
+
+        return new HashMap<>(registeredSerializers);
 
     }
 
@@ -308,7 +387,8 @@ public class ConfigurationResolver {
      */
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static void setConfigurationFieldValue(@NotNull final Field field, @NotNull final Class<?> type, @Nullable final Object value) throws IllegalAccessException {
+    public static void setConfigurationFieldValue(@NotNull final Field field, @NotNull final Class<?> type,
+                                                  @Nullable final Object value) throws IllegalAccessException {
 
         if (field.getType().isAssignableFrom(Holder.class)) {
             final Holder holder = (Holder) field.get(type);
