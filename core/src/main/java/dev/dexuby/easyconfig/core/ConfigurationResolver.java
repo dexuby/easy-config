@@ -78,12 +78,13 @@ public class ConfigurationResolver {
             final Class<?> type = classEntry.getKey();
             if (!(ConfigurationSerializable.class.isAssignableFrom(type)))
                 continue;
+            final Class<?> targetType = (Class<?>) ((ParameterizedType) type.getGenericInterfaces()[0]).getActualTypeArguments()[0];
             try {
                 final Constructor<?> constructor = type.getConstructor();
                 try {
                     // Create new instance and register.
                     final ConfigurationSerializable<?> instance = (ConfigurationSerializable<?>) constructor.newInstance();
-                    this.registerSerializer(type, instance);
+                    this.registerSerializer(targetType, instance);
                 } catch (final InvocationTargetException | InstantiationException | IllegalAccessException ex) {
                     Constants.LOGGER.error("Failed to create new instance of serializer class " + type.getName(), ex);
                 }
@@ -97,7 +98,7 @@ public class ConfigurationResolver {
                     try {
                         // Try to obtain the singleton instance from the static getter.
                         final ConfigurationSerializable<?> instance = (ConfigurationSerializable<?>) method.invoke(null);
-                        this.registerSerializer(type, instance);
+                        this.registerSerializer(targetType, instance);
                         break;
                     } catch (final IllegalAccessException | InvocationTargetException innerException) {
                         Constants.LOGGER.error("Failed to obtain singleton instance of serializer class: " + type.getName(), innerException);
