@@ -85,7 +85,7 @@ public final class InstantSerializer implements ConfigurationSerializable<Instan
 ```
 
 ## How to register a (de)serializer:
-You can either provide a (de)serializer map during the construction of your `ConfigurationResolver` instance or use the `#registerSerializer` method:
+You can either provide a (de)serializer map during the construction of your `ConfigurationResolver` instance, use the `#registerSerializer` method or use the auto serializer resolver:
 ```java
 final Map<Class<?>, ConfigurationSerializable<?>> defaultSerializers =
             MapUtils.newMap(
@@ -96,5 +96,8 @@ final ConfigurationResolver configurationResolver = new ConfigurationResolver(ea
 ```
 ```java
 configurationResolver.registerSerializer(Foo.class, FooSerializer.getInstance());
+```
+```java
+configurationResolver.resolveSerializers();
 ```
 Make sure to register all (de)serializers before you load your configurations.
