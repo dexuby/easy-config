@@ -147,17 +147,16 @@ public class ConfigurationResolver {
                     }
                     if (config.hasPath(path)) {
                         // Complex objects like collections require generic type handlers.
-                        boolean requiresFieldWriter = false;
+                        boolean requiresGenericTypeHandler = false;
                         for (final Map.Entry<Predicate<Class<?>>, GenericTypeHandlerFactory> entry : this.registeredGenericTypeHandlers.entrySet()) {
                             if (entry.getKey().test(fieldType)) {
-                                requiresFieldWriter = true;
+                                requiresGenericTypeHandler = true;
                                 final GenericTypeHandler genericTypeHandler = entry.getValue().create(this.registeredSerializers, field, fieldType, type);
                                 genericTypeHandler.readAndSet(config, path);
                                 break;
                             }
                         }
-                        if (requiresFieldWriter) continue;
-
+                        if (requiresGenericTypeHandler) continue;
                         if (this.registeredSerializers.containsKey(fieldType)) {
                             final ConfigurationSerializable<?> serializer = this.registeredSerializers.get(fieldType);
                             setConfigurationFieldValue(field, type, serializer.deserialize(config.getValue(path)));
@@ -167,16 +166,16 @@ public class ConfigurationResolver {
                     } else {
                         // Write default values.
                         // Complex objects like collections require generic type handlers.
-                        boolean requiresFieldWriter = false;
+                        boolean requiresGenericTypeHandler = false;
                         for (final Map.Entry<Predicate<Class<?>>, GenericTypeHandlerFactory> entry : this.registeredGenericTypeHandlers.entrySet()) {
                             if (entry.getKey().test(fieldType)) {
-                                requiresFieldWriter = true;
+                                requiresGenericTypeHandler = true;
                                 final GenericTypeHandler genericTypeHandler = entry.getValue().create(this.registeredSerializers, field, fieldType, type);
                                 config = config.withValue(path, genericTypeHandler.toConfigValue(this.createOrigin(description)));
                                 break;
                             }
                         }
-                        if (requiresFieldWriter) continue;
+                        if (requiresGenericTypeHandler) continue;
                         if (this.registeredSerializers.containsKey(fieldType)) {
                             final ConfigurationSerializable serializer = this.registeredSerializers.get(fieldType);
                             config = config.withValue(path, serializer.serialize(fieldValue).withOrigin(this.createOrigin(description)));
