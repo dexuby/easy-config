@@ -1,3 +1,18 @@
+[![](https://jitpack.io/v/dexuby/easy-config.svg)](https://jitpack.io/#dexuby/easy-config)
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>com.github.dexuby.easy-config</groupId>
+    <artifactId>easy-config-core</artifactId>
+    <version>1.0.3</version>
+</dependency>
+```
 # EasyConfig
 
 EasyConfig is an easy to use configuration system built on top of https://github.com/lightbend/config. The goal of the project is to provide a configuration library that is extremely easy to use while still being
