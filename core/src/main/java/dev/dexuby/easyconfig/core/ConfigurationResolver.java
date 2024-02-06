@@ -172,6 +172,7 @@ public class ConfigurationResolver {
                                 requiresGenericTypeHandler = true;
                                 final GenericTypeHandler genericTypeHandler = entry.getValue().create(this.registeredSerializers, field, fieldType, type);
                                 config = config.withValue(path, genericTypeHandler.toConfigValue(this.createOrigin(description)));
+                                saveFile = true;
                                 break;
                             }
                         }
